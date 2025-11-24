@@ -3,22 +3,23 @@ from flask import Flask, render_template, request, url_for
 from werkzeug.utils import secure_filename
 import os
 
-# project root = one level above /app
-PROJECT_ROOT = Path(__file__).resolve().parents[1]
-MODELS_DIR_PATH = PROJECT_ROOT / "models"
+# interface root (folder that contains app/, models/, static/, templates/)
+INTERFACE_ROOT = Path(__file__).resolve().parents[1]
 
-# Create Flask app with correct template/static folders
+MODELS_DIR_PATH = INTERFACE_ROOT / "models"
+
+# Flask app with correct template & static folders
 app = Flask(
     __name__,
-    template_folder=str(PROJECT_ROOT / "templates"),
-    static_folder=str(PROJECT_ROOT / "static"),
+    template_folder=str(INTERFACE_ROOT / "templates"),
+    static_folder=str(INTERFACE_ROOT / "static"),
 )
 
-# Import the core logic from the models directory
+# Import the core logic from sibling models/ package (relative import)
 try:
-    from models.model_utils import load_all_models, run_analysis_pipeline, CLASS_NAMES
+    from ..models.model_utils import load_all_models, run_analysis_pipeline, CLASS_NAMES
 except ImportError as e:
-    print("CRITICAL ERROR: Failed to import model_utils. Ensure 'models/model_utils.py' exists.")
+    print("CRITICAL ERROR: Failed to import model_utils. Ensure 'interface/models/model_utils.py' exists.")
     print("Error details:", e)
 
     class DummyUtils:
@@ -37,14 +38,12 @@ except ImportError as e:
 
 # --- Configuration ---
 
-# Absolute paths for uploads and Grad-CAM outputs
-UPLOAD_FOLDER = PROJECT_ROOT / "static" / "uploads"
-GRADCAM_FOLDER = PROJECT_ROOT / "static" / "gradcam"
+UPLOAD_FOLDER = INTERFACE_ROOT / "static" / "uploads"
+GRADCAM_FOLDER = INTERFACE_ROOT / "static" / "gradcam"
 
 app.config["UPLOAD_FOLDER"] = str(UPLOAD_FOLDER)
 app.config["GRADCAM_FOLDER"] = str(GRADCAM_FOLDER)
 
-# Ensure folders exist
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(GRADCAM_FOLDER, exist_ok=True)
 os.makedirs(MODELS_DIR_PATH, exist_ok=True)
@@ -86,6 +85,7 @@ def predict():
         except Exception as e:
             if img_path.exists():
                 img_path.unlink()
+
             error_message = (
                 f"An error occurred during model analysis (Model: {main_model}/{secondary_model}). "
                 f"This often means a model file is missing or the input data was incorrect. Error: {e}"

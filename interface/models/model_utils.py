@@ -1,6 +1,6 @@
 import os
 import io
-from pathlib import Path      # ✅ correct Path class
+from pathlib import Path     # ⬅ change from zipfile.Path to pathlib.Path
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -10,18 +10,18 @@ from PIL import Image
 import cv2
 import matplotlib.pyplot as plt
 
-# Check device availability
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
-# Repo root
-ROOT_DIR = Path(__file__).resolve().parents[1]
+# repo root = one level above interface/
+REPO_ROOT = Path(__file__).resolve().parents[2]
+OUTPUTS_DIR = REPO_ROOT / "outputs"
 
 MODEL_PATHS = {
-    'TransUNet': ROOT_DIR / 'outputs' / 'transunet-model-outputs' / 'best_transunet_aeo.pth',
-    'ResNet-34': ROOT_DIR / 'outputs' / 'resnet34-model-outputs' / 'best_cls_model.pth',
-    'DB-LARNet': ROOT_DIR / 'outputs' / 'db-larnet-model-outputs' / 'best_dualbranch_cls_model.pth',
-    'PLA-MIL': ROOT_DIR / 'outputs' / 'pla-mil-network-model-outputs' / 'best_plamil_model.pth',
-    'SG-ResNet': ROOT_DIR / 'outputs' / 'segmentation-guided-resnet-34-model-outputs' / 'best_sg_resnet_model.pth',
+    'TransUNet': OUTPUTS_DIR / 'transunet-model-outputs' / 'best_transunet_aeo.pth',
+    'ResNet-34': OUTPUTS_DIR / 'resnet34-model-outputs' / 'best_cls_model.pth',
+    'DB-LARNet': OUTPUTS_DIR / 'db-larnet-model-outputs' / 'best_dualbranch_cls_model.pth',
+    'PLA-MIL': OUTPUTS_DIR / 'pla-mil-network-model-outputs' / 'best_plamil_model.pth',
+    'SG-ResNet': OUTPUTS_DIR / 'segmentation-guided-resnet-34-model-outputs' / 'best_sg_resnet_model.pth',
 }
 
 CLASS_NAMES = ["MEL", "NV", "BCC", "AKIEC", "BKL", "DF", "VASC"]
@@ -341,7 +341,6 @@ class GradCAMBranch:
 # =========================================================================
 
 def load_all_models():
-    """Loads all trained models into memory once."""
     loaded_models = {}
 
     def load_weights(model, path):
@@ -350,24 +349,19 @@ def load_all_models():
         return model
 
     try:
-        # TransUNet (Segmentation)
         transunet_model = TransUNetAEO(img_size=TARGET_SIZE_SEG).to(DEVICE)
         loaded_models['TransUNet'] = load_weights(transunet_model, MODEL_PATHS['TransUNet'])
 
-        # ResNet-34 (Lesion Crop Baseline)
         resnet34_base = models.resnet34(weights=models.ResNet34_Weights.IMAGENET1K_V1)
         resnet34_base.fc = nn.Linear(resnet34_base.fc.in_features, NUM_CLASSES)
         loaded_models['ResNet-34'] = load_weights(resnet34_base, MODEL_PATHS['ResNet-34'])
 
-        # DB-LARNet (Dual-Branch)
         db_larnet_model = DualBranchResNet(num_classes=NUM_CLASSES, pretrained=False).to(DEVICE)
         loaded_models['DB-LARNet'] = load_weights(db_larnet_model, MODEL_PATHS['DB-LARNet'])
 
-        # PLA-MIL
         plamil_model = PatchMILLesionClassifier(num_classes=NUM_CLASSES, patch_dim=256).to(DEVICE)
         loaded_models['PLA-MIL'] = load_weights(plamil_model, MODEL_PATHS['PLA-MIL'])
 
-        # SG-ResNet (Segmentation-Guided Classification)
         sg_resnet_model = build_4ch_resnet34(num_classes=NUM_CLASSES, pretrained=False).to(DEVICE)
         loaded_models['SG-ResNet'] = load_weights(sg_resnet_model, MODEL_PATHS['SG-ResNet'])
 
