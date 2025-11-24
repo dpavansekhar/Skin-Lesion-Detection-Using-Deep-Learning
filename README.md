@@ -276,5 +276,4 @@ Produces:
 - Research literature on dermatology AI  
 
 ---
-*(Add your preferred license, e.g., MIT or "For academic use only")*
 
