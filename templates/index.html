@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Skin Check - Upload Image</title>
+    <!-- Load Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f7fafc;
+        }
+        .card {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        .file-input-label {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .file-input-label:hover {
+            background-color: #f1f5f9;
+        }
+        .model-option {
+            transition: background-color 0.15s, border-color 0.15s;
+        }
+        .model-option:hover {
+            border-color: #6366f1;
+        }
+        input[type="radio"]:checked + .model-option {
+            border-color: #4f46e5;
+            background-color: #eef2ff;
+            box-shadow: 0 0 0 2px #c7d2fe;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="card w-full max-w-2xl bg-white p-8 rounded-xl border border-gray-200">
+        
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-extrabold text-indigo-700">
+                AI Skin Check 🔬
+            </h1>
+            <p class="mt-2 text-gray-500">Fast, preliminary analysis using an ensemble of models.</p>
+        </div>
+
+        <!-- Image Upload Form -->
+        <form id="analysis-form" method="POST" action="/predict" enctype="multipart/form-data" class="space-y-8">
+            
+            <!-- 1. Model Selection -->
+            <div class="space-y-4">
+                <h2 class="text-xl font-bold text-gray-800 border-b pb-2">1. Select Analysis Method</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    
+                    <!-- Option 1: Segmentation-Guided Classification -->
+                    <label>
+                        <input type="radio" name="main_model" value="SG-ResNet" class="hidden" required onchange="toggleSecondaryModels(false)">
+                        <div class="model-option p-4 border-2 border-gray-300 rounded-lg shadow-sm">
+                            <h3 class="font-semibold text-lg text-gray-900">Direct Classification</h3>
+                            <p class="text-sm text-gray-500">Segmentation-Guided ResNet-34 (SG-ResNet)</p>
+                            <p class="text-xs text-indigo-500 mt-1">One-step process for fast results.</p>
+                        </div>
+                    </label>
+
+                    <!-- Option 2: Segmentation + Base Classification -->
+                    <label>
+                        <input type="radio" name="main_model" value="TransUNet" class="hidden" required onchange="toggleSecondaryModels(true)">
+                        <div class="model-option p-4 border-2 border-gray-300 rounded-lg shadow-sm">
+                            <h3 class="font-semibold text-lg text-gray-900">Segmentation + Baseline</h3>
+                            <p class="text-sm text-gray-500">TransUNet segmentation followed by a separate classifier.</p>
+                            <p class="text-xs text-indigo-500 mt-1">Allows comparison between different classification models.</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- 2. Secondary Model Selection (Hidden by default) -->
+            <div id="secondary-models" class="space-y-4 p-4 border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 hidden">
+                <h2 class="text-xl font-bold text-gray-800 border-b pb-2">2. Choose Baseline Classifier (Segmentation first)</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    
+                    <label>
+                        <input type="radio" name="secondary_model" value="ResNet-34" class="hidden">
+                        <div class="model-option p-3 border-2 border-gray-300 rounded-lg text-center">
+                            <p class="font-medium">ResNet-34</p>
+                            <p class="text-xs text-gray-500">Lesion Crop Baseline</p>
+                        </div>
+                    </label>
+
+                    <label>
+                        <input type="radio" name="secondary_model" value="DB-LARNet" class="hidden">
+                        <div class="model-option p-3 border-2 border-gray-300 rounded-lg text-center">
+                            <p class="font-medium">DB-LARNet</p>
+                            <p class="text-xs text-gray-500">Dual-Branch Fusion</p>
+                        </div>
+                    </label>
+
+                    <label>
+                        <input type="radio" name="secondary_model" value="PLA-MIL" class="hidden">
+                        <div class="model-option p-3 border-2 border-gray-300 rounded-lg text-center">
+                            <p class="font-medium">PLA-MIL</p>
+                            <p class="text-xs text-gray-500">Patch-Level Attention</p>
+                        </div>
+                    </label>
+                </div>
+                <p id="secondary-model-warning" class="text-sm text-red-500 hidden">Please select one classifier to proceed.</p>
+            </div>
+
+
+            <!-- 3. Image Upload -->
+            <div class="space-y-4">
+                <h2 class="text-xl font-bold text-gray-800 border-b pb-2">3. Upload Image</h2>
+
+                <div class="text-center">
+                    <label for="file-upload" class="file-input-label flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-indigo-300 rounded-lg bg-white p-6 hover:border-indigo-500">
+                        <svg class="w-10 h-10 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                        <span class="mt-2 text-base text-gray-600">Drag & drop or <span class="font-medium text-indigo-600">click to browse</span></span>
+                        <span class="text-xs text-gray-400 mt-1">PNG, JPG, JPEG (Max 5MB)</span>
+                        <input id="file-upload" name="file" type="file" class="hidden" accept="image/png, image/jpeg" required onchange="updateFileName(this)">
+                    </label>
+                    
+                    <p id="file-name-display" class="mt-3 text-sm text-green-600 font-medium"></p>
+                </div>
+            </div>
+
+            <!-- Analysis Button -->
+            <button type="submit" id="submit-button" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold text-lg hover:bg-indigo-700 transition duration-150 ease-in-out shadow-md hover:shadow-lg">
+                Start Analysis
+            </button>
+        </form>
+
+        <!-- Guidance and Disclaimer -->
+        <div class="mt-8 pt-6 border-t border-gray-200 space-y-3">
+            <h3 class="text-lg font-semibold text-gray-700">Image Submission Guidelines:</h3>
+            <ul class="list-disc list-inside text-sm text-gray-600 space-y-1">
+                <li>Ensure the photo is **well-lit** and **in focus**.</li>
+                <li>Capture only the lesion and a small border of normal skin.</li>
+                <li>Avoid shadows or reflections from flash.</li>
+            </ul>
+
+            <div class="p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-700 rounded-lg mt-4" role="alert">
+                <p class="font-bold">Medical Disclaimer:</p>
+                <p class="text-sm">This AI tool is for **educational and informational purposes only**. It does not provide medical advice or diagnosis. Always consult a qualified healthcare professional or dermatologist for any health concerns or before making any medical decisions.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for conditional rendering and validation -->
+    <script>
+        const secondaryModelsContainer = document.getElementById('secondary-models');
+        const secondaryModelRadios = document.querySelectorAll('input[name="secondary_model"]');
+        const secondaryModelWarning = document.getElementById('secondary-model-warning');
+        const submitButton = document.getElementById('submit-button');
+        const analysisForm = document.getElementById('analysis-form');
+
+        // Function to control visibility and required state of secondary models
+        function toggleSecondaryModels(isVisible) {
+            if (isVisible) {
+                secondaryModelsContainer.classList.remove('hidden');
+                // Make the secondary models required for validation
+                secondaryModelRadios.forEach(radio => radio.setAttribute('required', 'required'));
+                validateModels();
+            } else {
+                secondaryModelsContainer.classList.add('hidden');
+                // Remove required attribute and uncheck them if hidden
+                secondaryModelRadios.forEach(radio => {
+                    radio.removeAttribute('required');
+                    radio.checked = false;
+                });
+                secondaryModelWarning.classList.add('hidden'); // Hide warning if switching away
+                submitButton.disabled = false; // Enable submit if primary model is SG-ResNet
+            }
+        }
+
+        // Function to display the selected file name
+        function updateFileName(input) {
+            const display = document.getElementById('file-name-display');
+            if (input.files.length > 0) {
+                display.textContent = 'Selected File: ' + input.files[0].name;
+            } else {
+                display.textContent = '';
+            }
+        }
+
+        // Validation logic for TransUNet path
+        function validateModels() {
+            const mainModel = document.querySelector('input[name="main_model"]:checked');
+            const secondaryModel = document.querySelector('input[name="secondary_model"]:checked');
+            
+            if (mainModel && mainModel.value === 'TransUNet') {
+                if (!secondaryModel) {
+                    secondaryModelWarning.classList.remove('hidden');
+                    submitButton.disabled = true;
+                } else {
+                    secondaryModelWarning.classList.add('hidden');
+                    submitButton.disabled = false;
+                }
+            } else {
+                // For SG-ResNet, no secondary model is needed
+                secondaryModelWarning.classList.add('hidden');
+                submitButton.disabled = false;
+            }
+        }
+
+        // Attach validation to all radio buttons
+        document.querySelectorAll('input[name="main_model"]').forEach(radio => {
+            radio.addEventListener('change', validateModels);
+        });
+        document.querySelectorAll('input[name="secondary_model"]').forEach(radio => {
+            radio.addEventListener('change', validateModels);
+        });
+
+        // Initial validation call (in case a radio button is pre-checked)
+        validateModels();
+
+        // Prevent form submission if validation fails (just in case browser validation is skipped)
+        analysisForm.addEventListener('submit', function(event) {
+            validateModels();
+            if (submitButton.disabled) {
+                event.preventDefault();
+                alert('Please select both a main analysis method and a baseline classifier if choosing the Segmentation + Baseline path.');
+            }
+        });
+
+    </script>
+</body>
+</html>
