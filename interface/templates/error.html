@@ -4,42 +4,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Error - AI Skin Check</title>
+    <!-- Load Poppins Font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     <!-- Load Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f7fafc;
+            font-family: 'Poppins', sans-serif;
+            background-color: #eef2ff; /* Light indigo background */
         }
         .card {
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 15px 30px rgba(79, 70, 229, 0.15); /* Stronger shadow */
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
 
-    <div class="card w-full max-w-xl bg-white p-8 rounded-xl border border-red-200">
+    <div class="card w-full max-w-xl bg-white p-8 rounded-2xl border border-red-300 mt-8 mb-8">
         
         <!-- Header -->
-        <div class="text-center mb-8">
+        <div class="text-center mb-8 pb-4 border-b border-red-200">
             <h1 class="text-4xl font-extrabold text-red-700">
                 Analysis Error 🛑
             </h1>
-            <p class="mt-2 text-gray-500">Something went wrong during the image processing or model prediction.</p>
+            <p class="mt-2 text-gray-600 font-medium">Something went wrong during the image processing or model prediction.</p>
         </div>
 
         <!-- Error Details -->
-        <div class="bg-red-50 p-6 rounded-lg border border-red-400 mb-8">
-            <h3 class="font-bold text-red-800 mb-2">Details:</h3>
+        <div class="bg-red-50 p-6 rounded-xl border border-red-400 mb-8 shadow-inner">
+            <h3 class="font-bold text-red-800 mb-2 text-lg">Error Details:</h3>
             <p class="text-sm text-red-700 whitespace-pre-wrap">{{ message }}</p>
         </div>
 
         <!-- Back Button -->
         <div class="mt-8 text-center">
-            <a href="/" class="inline-block bg-indigo-600 text-white py-2 px-6 rounded-lg font-semibold hover:bg-indigo-700 transition duration-150">
+            <a href="/" class="inline-block bg-indigo-700 text-white py-3 px-8 rounded-xl font-semibold hover:bg-indigo-800 transition duration-150 shadow-lg">
                 &larr; Return to Upload Page
             </a>
         </div>
     </div>
+    
+    <!-- Footer for Attribution -->
+    <footer class="mt-4 pb-4 text-center text-sm text-gray-500">
+        Developed and Deployed by 
+        <a 
+            href="https://dpavansekhar.github.io/Portfolio-Dogga-Pavan-Sekhar/" 
+            target="_blank" 
+            class="font-semibold text-indigo-600 hover:text-indigo-800 transition duration-150 ease-in-out underline"
+        >
+            Dogga Pavan Sekhar
+        </a>
+    </footer>
 </body>
 </html>

@@ -4,72 +4,87 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Skin Check - Result</title>
+    <!-- Load Poppins Font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     <!-- Load Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f7fafc;
+            font-family: 'Poppins', sans-serif;
+            background-color: #eef2ff; /* Light indigo background */
         }
         .card {
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 15px 30px rgba(79, 70, 229, 0.15); /* Stronger shadow */
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
 
-    <div class="card w-full max-w-4xl bg-white p-8 rounded-xl border border-gray-200">
+    <div class="card w-full max-w-4xl bg-white p-8 rounded-2xl border border-gray-100 mt-8 mb-8">
         
         <!-- Header -->
-        <div class="text-center mb-8">
+        <div class="text-center mb-8 pb-4 border-b border-indigo-100">
             <h1 class="text-4xl font-extrabold text-indigo-700">
                 AI Skin Check Results 🎉
             </h1>
+            <p class="mt-2 text-gray-500 font-medium">Detailed analysis report and model interpretation.</p>
         </div>
 
         <!-- Prediction Summary -->
-        <div class="bg-indigo-50 p-6 rounded-xl border border-indigo-200 mb-8 text-center">
-            <p class="text-xl font-semibold text-gray-700">Predicted Lesion Class:</p>
-            <h2 class="text-5xl font-extrabold text-indigo-800 mt-1">{{ prediction }}</h2>
-            <p class="mt-2 text-lg text-indigo-600">Confidence: <strong>{{ confidence }}</strong></p>
+        <div class="bg-indigo-600 text-white p-6 rounded-xl shadow-lg mb-8 text-center">
+            <p class="text-xl font-semibold opacity-90">Predicted Lesion Class:</p>
+            <h2 class="text-5xl font-extrabold mt-1">{{ prediction }}</h2>
+            <p class="mt-2 text-lg">Confidence: <strong>{{ confidence }}</strong></p>
         </div>
 
         <!-- Model Pipeline Details -->
-        <div class="mb-8 text-center text-sm text-gray-500">
-            <p><strong>Analysis Pipeline:</strong> {{ model_pipeline }}</p>
-            <p><strong>Classification Model Used:</strong> {{ secondary_model }}</p>
+        <div class="mb-8 p-4 bg-gray-50 rounded-lg text-center text-sm text-gray-700 border border-gray-200">
+            <p class="font-semibold">Analysis Pipeline: <span class="font-normal">{{ model_pipeline }}</span></p>
+            <p class="font-semibold">Classification Model Used: <span class="font-normal">{{ secondary_model }}</span></p>
         </div>
 
         <!-- Visualization Section -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             
             <!-- Original Image -->
-            <div class="bg-white p-4 rounded-lg border border-gray-200 text-center">
+            <div class="bg-white p-4 rounded-lg border border-gray-200 text-center shadow-md">
                 <h3 class="text-xl font-bold text-gray-800 mb-4">Original Image</h3>
-                <img src="{{ image_url }}" alt="Uploaded Skin Lesion" class="w-full h-auto rounded-lg shadow-md border">
+                <img src="{{ image_url }}" alt="Uploaded Skin Lesion" class="w-full h-auto rounded-lg shadow-inner border">
             </div>
 
             <!-- Grad-CAM Visualization -->
-            <div class="bg-white p-4 rounded-lg border border-gray-200 text-center">
+            <div class="bg-white p-4 rounded-lg border border-gray-200 text-center shadow-md">
                 <h3 class="text-xl font-bold text-gray-800 mb-4">Model Focus (Grad-CAM) </h3>
-                <img src="{{ gradcam_url }}" alt="Grad-CAM Visualization" class="w-full h-auto rounded-lg shadow-md border">
+                <img src="{{ gradcam_url }}" alt="Grad-CAM Visualization" class="w-full h-auto rounded-lg shadow-inner border">
                 <p class="text-xs text-gray-500 mt-2">The red/yellow areas indicate regions the model focused on for this prediction.</p>
             </div>
             
         </div>
 
         <!-- Disclaimer -->
-        <div class="mt-10 p-4 bg-red-50 border-l-4 border-red-400 text-red-700 rounded-lg" role="alert">
-            <p class="font-bold">CRITICAL MEDICAL DISCLAIMER:</p>
+        <div class="mt-10 p-4 bg-red-100 border-l-4 border-red-500 text-red-800 rounded-lg shadow-sm" role="alert">
+            <p class="font-bold text-lg">CRITICAL MEDICAL DISCLAIMER:</p>
             <p class="text-sm">This AI prediction is for **RESEARCH AND EDUCATIONAL USE ONLY**. It is **NOT** a professional medical diagnosis. Misdiagnosis can be life-threatening. **ALWAYS** seek immediate consultation with a certified dermatologist for any health concerns.</p>
         </div>
 
         <!-- Back Button -->
         <div class="mt-8 text-center">
-            <a href="/" class="inline-block bg-gray-200 text-gray-800 py-2 px-6 rounded-lg font-semibold hover:bg-gray-300 transition duration-150">
+            <a href="/" class="inline-block bg-indigo-200 text-indigo-800 py-3 px-8 rounded-xl font-semibold hover:bg-indigo-300 transition duration-150 shadow-md">
                 &larr; Analyze Another Image
             </a>
         </div>
     </div>
+    
+    <!-- Footer for Attribution -->
+    <footer class="mt-4 pb-4 text-center text-sm text-gray-500">
+        Developed and Deployed by 
+        <a 
+            href="https://dpavansekhar.github.io/Portfolio-Dogga-Pavan-Sekhar/" 
+            target="_blank" 
+            class="font-semibold text-indigo-600 hover:text-indigo-800 transition duration-150 ease-in-out underline"
+        >
+            Dogga Pavan Sekhar
+        </a>
+    </footer>
 </body>
 </html>
