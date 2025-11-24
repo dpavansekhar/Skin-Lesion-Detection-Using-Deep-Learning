@@ -277,3 +277,218 @@ Produces:
 
 ---
 
+## 10. Running the Web Interface Locally
+
+This section explains how to run the **Flask-based web interface** for:
+
+- Skin lesion **segmentation**
+- Lesion **classification**
+- **Grad-CAM–based** explainability
+
+---
+
+### 10.1 Prerequisites
+
+Make sure the following are installed on your machine:
+
+- Python **3.10+**
+- **Git**
+- At least **8 GB RAM** (recommended, due to multiple PyTorch models)
+- All trained model `.pth` files placed in the `outputs/` directory
+
+---
+
+### 10.2 Clone the Repository
+
+Use the following commands in a terminal:
+
+```bash
+# Clone the GitHub repository
+git clone https://github.com/dpavansekhar/Skin-Lesion-Detection-Using-Deep-Learning.git
+
+# Move into the project root folder
+cd Skin-Lesion-Detection-Using-Deep-Learning
+````
+
+---
+
+### 10.3 Create and Activate a Virtual Environment (Recommended)
+
+**Windows (PowerShell):**
+
+```bash
+# Create a virtual environment
+python -m venv .venv
+
+# Activate the virtual environment
+.venv\Scripts\Activate.ps1
+```
+
+**macOS / Linux:**
+
+```bash
+# Create a virtual environment
+python -m venv .venv
+
+# Activate the virtual environment
+source .venv/bin/activate
+```
+
+---
+
+### 10.4 Install Requirements
+
+Install all required Python dependencies:
+
+```bash
+# Upgrade pip (optional but recommended)
+pip install --upgrade pip
+
+# Install project dependencies
+pip install -r requirements.txt
+```
+
+---
+
+### 10.5 Verify Project Structure
+
+Ensure the repository structure matches the layout below (key folders only):
+
+```text
+interface/
+   app/
+      app.py
+   models/
+      model_utils.py
+   static/
+      uploads/
+      gradcam/
+   templates/
+      index.html
+      error.html
+      results.html
+
+outputs/
+   transunet-model-outputs/
+   resnet34-model-testing/
+   db-larnet-model-outputs/
+   pla-mil-network-model-outputs-ham10000/
+   segmentation-guided-resnet-34-model-outputs-ham10000/
+   (all best_*.pth model files)
+
+requirements.txt
+```
+
+> ✅ All `.pth` model files **must** be located inside the `outputs/` folder.
+> ✅ Folder and file names must match exactly those used in `interface/models/model_utils.py`.
+
+---
+
+### 10.6 Run the Flask Interface
+
+From the **project root**, you can start the interface in one of two ways:
+
+**Option A – Using Flask CLI**
+
+```bash
+# Run the Flask app using the Flask CLI
+python -m flask --app interface.app.app run
+```
+
+**Option B – Running the script directly**
+
+```bash
+# Run the Flask app by calling the script directly
+python interface/app/app.py
+```
+
+By default, the interface will be available at:
+
+```text
+http://127.0.0.1:5000
+```
+
+Open this URL in your web browser.
+
+---
+
+### 10.7 Using the Interface
+
+Once the interface is running:
+
+1. Upload a dermoscopic skin lesion image (`.jpg` / `.png`).
+2. Choose the analysis pipeline:
+
+   * **SG-ResNet** (segmentation-guided 4-channel model: RGB + mask)
+   * **TransUNet + Classification** (segmentation followed by a classifier)
+3. If you select **TransUNet**, also choose a secondary classifier:
+
+   * `ResNet-34`
+   * `DB-LARNet`
+   * `PLA-MIL`
+4. Click **Analyse**.
+5. The results page will display:
+
+   * Predicted **lesion class**
+   * **Confidence score**
+   * The original input image
+   * A **Grad-CAM heatmap** overlay for visual explanation
+
+---
+
+### 10.8 Stopping the Server
+
+To stop the Flask server, go back to the terminal where it is running and press:
+
+```text
+Ctrl + C
+```
+
+---
+
+### 10.9 Troubleshooting
+
+**1️⃣ Missing model files**
+
+If you encounter errors related to model loading (e.g. *model not found*):
+
+* Confirm that all required `.pth` files are present inside the `outputs/` folder.
+* Ensure that path and filenames match those referenced in `model_utils.py`.
+
+---
+
+**2️⃣ Template not found**
+
+If you see `TemplateNotFound` errors:
+
+* Confirm that the `templates/` folder is located inside `interface/`.
+* Check that the template filenames match exactly:
+
+  * `index.html`
+  * `error.html`
+  * `results.html` (watch out for typos like `reuslts.html`).
+
+---
+
+**3️⃣ Import errors**
+
+If Python packages are missing:
+
+```bash
+# Re-install all dependencies
+pip install -r requirements.txt
+```
+
+---
+
+**4️⃣ Port already in use**
+
+If port `5000` is already in use, run the app on a different port:
+
+```bash
+# Run Flask app on port 5001 instead of 5000
+python -m flask --app interface.app.app run --port 5001
+```
+
+---
+
